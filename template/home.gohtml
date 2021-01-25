@@ -1,0 +1,29 @@
+{{ define "homePage" }}
+    <!doctype html>
+    <html lang="en">
+    <head>
+        {{ template "header" }}
+        <title>Home</title>
+    </head>
+    <body>
+    Hello {{ .Username }}<br>
+    <table>
+        <thead>
+            <tr>
+                <th>Table</th>
+                <tH>Rows</tH>
+            </tr>
+        </thead>
+        <tbody>
+{{ range .Tables }}
+            <tr>
+                <td>{{ .Name }}</td>
+                <td>{{ .AproxRowCount }}</td>
+            </tr>
+{{ end }}
+        </tbody>
+    </table>
+
+    </body>
+    </html>
+{{ end }}
