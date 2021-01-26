@@ -34,9 +34,6 @@ jobs:
       with:
         go-version: 1.15.x
 
-    - name: Install coverage badge tool
-      run: go get github.com/jpoles1/gopherbadger
-      
     - name: Checkout code
       uses: actions/checkout@v2
 

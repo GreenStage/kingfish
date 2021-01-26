@@ -76,7 +76,7 @@ func testMain(m *testing.M) int {
 		MaxSessionLifetime:   10 * time.Second,
 	})
 
-	server := httptest.NewServer(handler)
+	server := httptest.NewUnstartedServer(handler)
 	server.Config.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
 		log, _ := zap.NewDevelopment()
 		return logger.ToContext(ctx, log)
