@@ -16,8 +16,11 @@ const (
 	clientKeyLen       = 32
 	clientKeyCookieKey = "CLIENT_KEY"
 	sessionCookieKey   = "SESSION_CFG"
-	sessionCtxKey      = "SESSION_CFG"
 	sessionExpiredKey  = "session_expired"
+)
+
+var (
+	sessionCtxKey = struct{}{}
 )
 
 type sessionData struct {

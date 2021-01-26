@@ -91,10 +91,11 @@ func TestPostLoginWithPostgresDriver(t *testing.T) {
 			test.form["driver"] = []string{"postgresql"}
 
 			r, err := getClient(t).Post(serverUrl+"/login", test.contentType, strings.NewReader(test.form.Encode()))
-			defer r.Body.Close()
-			bodyBytes, err := ioutil.ReadAll(r.Body)
-
 			assert.NoError(t, err)
+
+			defer r.Body.Close()
+			bodyBytes, _ := ioutil.ReadAll(r.Body)
+
 			assert.Equal(t, test.wantCode, r.StatusCode)
 			if test.wantInBody != "" {
 				assert.Contains(t, string(bodyBytes), test.wantInBody)

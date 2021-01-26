@@ -25,7 +25,7 @@ func ParseRows(rows *sql.Rows, converter TypeToPtrConverter) (db.QueryResult, er
 
 	for rows.Next() {
 		rowPtrs := make([]interface{}, len(res.Header))
-		for i, _ := range colTypes {
+		for i := range colTypes {
 			rowPtrs[i] = converter(colTypes[i])
 		}
 

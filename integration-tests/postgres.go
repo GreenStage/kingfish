@@ -66,7 +66,7 @@ func loadPosgresTestDB(pool *dockertest.Pool, user, pw, dbname string) (url stri
 
 	cleanup := func() {
 		if err := pool.Purge(resource); err != nil {
-			fmt.Fprintf(os.Stderr, "could not remove container: %\n", err)
+			fmt.Fprintf(os.Stderr, "could not remove container: %v\n", err)
 		}
 	}
 
