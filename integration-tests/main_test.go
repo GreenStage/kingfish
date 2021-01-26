@@ -21,19 +21,18 @@ var (
 	serverUrl string
 )
 
-type dbLoader func(pool *dockertest.Pool, user, pw, db, hostPort string) (url string, cleanupFn func(), err error)
+type dbLoader func(pool *dockertest.Pool, user, pw, db string) (url string, cleanupFn func(), err error)
 type dbConfig struct {
-	user, pass, db, url, hostport string
-	loader                        dbLoader
+	user, pass, db, url string
+	loader              dbLoader
 }
 
 var testDBs = map[string]*dbConfig{
 	"postgresql": {
-		user:     "usr",
-		pass:     "pw",
-		db:       "db",
-		hostport: "8082",
-		loader:   loadPosgresTestDB,
+		user:   "usr",
+		pass:   "pw",
+		db:     "db",
+		loader: loadPosgresTestDB,
 	},
 }
 
@@ -49,7 +48,7 @@ func testMain(m *testing.M) int {
 	}
 
 	for k, v := range testDBs {
-		generatedUrl, cleanup, err := v.loader(pool, v.user, v.pass, v.db, v.hostport)
+		generatedUrl, cleanup, err := v.loader(pool, v.user, v.pass, v.db)
 		if cleanup != nil {
 			defer cleanup()
 		}

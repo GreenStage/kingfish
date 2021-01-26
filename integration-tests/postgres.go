@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
 	"os"
 )
 
@@ -49,18 +48,11 @@ var postgresTestMigrations = []string{
 	`,
 }
 
-func loadPosgresTestDB(pool *dockertest.Pool, user, pw, dbname, hostPort string) (url string, cleanupFn func(), err error) {
+func loadPosgresTestDB(pool *dockertest.Pool, user, pw, dbname string) (url string, cleanupFn func(), err error) {
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository:   "postgres",
 		Tag:          "13.1",
 		ExposedPorts: []string{"5432"},
-		PortBindings: map[docker.Port][]docker.PortBinding{
-			"5432": {
-				{
-					HostPort: hostPort,
-				},
-			},
-		},
 		Env: []string{
 			"POSTGRES_USER=" + user,
 			"POSTGRES_PASSWORD=" + pw,
