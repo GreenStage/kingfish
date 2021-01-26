@@ -81,6 +81,7 @@ func testMain(m *testing.M) int {
 		log, _ := zap.NewDevelopment()
 		return logger.ToContext(ctx, log)
 	}
+	server.Start()
 	serverUrl = server.URL
 
 	return m.Run()
