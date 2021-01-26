@@ -42,20 +42,30 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@master
+      
     - name: Install Go
       if: success()
       uses: actions/setup-go@v2
       with:
         go-version: 1.15.x
+
+    - name: Install coverage badge tool
+      run: go get github.com/jpoles1/gopherbadger
+      
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Calc coverage
       run: |
-        go test -v -covermode count -coverprofile coverage.out -coverpkg ./... ./...
-    - name: Convert coverage.out to coverage.lcov
-      uses: jandelgado/gcov2lcov-action@v1.0.6
-    - name: Coveralls
-      uses: coverallsapp/github-action@v1.1.2
+        gopherbadger -covercmd="go test -coverprofile cover.out -coverpkg ./... ./... && go tool cover -func=cover.out"
+
+    - name: Upload badge
+      uses: zdurham/s3-upload-github-action@master
       with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: coverage.lcov
+         args: --acl public-read
+      env:
+        FILE: ./coverage_badge.png
+        S3_BUCKET: ${{ secrets.AWS_BUCKET }}
+        S3_KEY: coverage_badge.png
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
