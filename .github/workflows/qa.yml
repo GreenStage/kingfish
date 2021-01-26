@@ -47,3 +47,4 @@ jobs:
         file: ./coverage.txt
         flags: unittests
         name: codecov-umbrella
+        token: ${{ secrets.CODECOV_TOKEN }}
