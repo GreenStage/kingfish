@@ -63,7 +63,7 @@ func testMain(m *testing.M) int {
 	sessionEncryptionKey, err := aes.GenerateKey(32)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
-		os.Exit(3)
+		return 3
 	}
 
 	handler := handlers.NewRouter(handlers.Config{

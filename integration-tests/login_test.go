@@ -8,6 +8,19 @@ import (
 	"testing"
 )
 
+func TestGetLoginPage_ContainsRequiredFields(t *testing.T) {
+	r, err := getClient(t).Get(serverUrl + "/login")
+	assert.NoError(t, err)
+
+	defer r.Body.Close()
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+	assert.Contains(t, string(bodyBytes), "name=\"driver\"")
+	assert.Contains(t, string(bodyBytes), "name=\"hostname\"")
+	assert.Contains(t, string(bodyBytes), "name=\"username\"")
+	assert.Contains(t, string(bodyBytes), "name=\"password\"")
+	assert.Contains(t, string(bodyBytes), "name=\"db\"")
+}
+
 func TestPostLoginWithPostgresDriver(t *testing.T) {
 	conf := testDBs["postgresql"]
 	tests := []struct {
