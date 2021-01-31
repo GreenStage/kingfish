@@ -21,10 +21,8 @@ func main() {
 		Drivers: map[string]handlers.Driver{
 			"postgresql": &postgres.Driver{},
 		},
-		TemplatesDir:         readEnvString("TEMPLATES_DIR", "./template"),
-		AssetsDir:            readEnvString("ASSETS_DIR", "./assets"),
 		SessionEncryptionKey: sessionEncryptionKey,
-		MaxSessionLifetime:   readEnvDuration("MAX_SESSION_LIFETIME", 5*time.Minute),
+		SessionIdleLifetime:  readEnvDuration("SESSION_IDLE_LIFETIME", 5*time.Minute),
 	})
 
 	fmt.Println("server listening")
@@ -33,14 +31,6 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println("server terminated")
-}
-
-func readEnvString(key, defaultVal string) string {
-	v := os.Getenv(key)
-	if v == "" {
-		v = defaultVal
-	}
-	return v
 }
 
 func readEnvDuration(key string, defaultVal time.Duration) time.Duration {

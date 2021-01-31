@@ -1,5 +1,6 @@
 package db
 
+/*
 type QueryResult struct {
 	Header []string
 	Rows   [][]interface{}
@@ -13,3 +14,4 @@ func (q QueryResult) GetColumnIndex(colName string) int {
 	}
 	return -1
 }
+*/

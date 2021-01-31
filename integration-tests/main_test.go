@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/GreenStage/kingfish/internal/db/postgres"
 	"github.com/GreenStage/kingfish/internal/handlers"
-	"github.com/GreenStage/kingfish/internal/logger"
 	"github.com/GreenStage/kingfish/pkg/aes"
+	"github.com/GreenStage/kingfish/pkg/logger"
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest/v3"
 	"go.uber.org/zap"
@@ -70,10 +70,8 @@ func testMain(m *testing.M) int {
 		Drivers: map[string]handlers.Driver{
 			"postgresql": &postgres.Driver{},
 		},
-		TemplatesDir:         "../template",
-		AssetsDir:            "../assets",
 		SessionEncryptionKey: sessionEncryptionKey,
-		MaxSessionLifetime:   10 * time.Second,
+		SessionIdleLifetime:  10 * time.Second,
 	})
 
 	server := httptest.NewUnstartedServer(handler)

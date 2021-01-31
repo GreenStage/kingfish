@@ -14,10 +14,8 @@ type Driver interface {
 
 type Config struct {
 	Drivers              map[string]Driver
-	TemplatesDir         string
-	AssetsDir            string
 	SessionEncryptionKey []byte
-	MaxSessionLifetime   time.Duration
+	SessionIdleLifetime  time.Duration
 }
 
 type router struct {
@@ -32,29 +30,19 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func NewRouter(conf Config) *router {
 	mux := chi.NewMux()
-	render := renderer.New(
-		renderer.Options{
-			ParseGlobPattern: conf.TemplatesDir + "/*.gohtml",
-		})
+	mux.Use(recoveryHandler)
 
 	r := router{
 		config: conf,
 		chiMux: mux,
-		render: render,
 	}
 
-	staticFileDirectory := http.Dir(conf.AssetsDir)
-	staticFileHandler := http.StripPrefix("/assets/", http.FileServer(staticFileDirectory))
-
-	mux.Get("/assets/*", staticFileHandler.ServeHTTP)
-
-	mux.Get("/login", r.GetLoginPage)
-	mux.Post("/login", r.PostLoginForm)
+	mux.Post("/login", r.Login)
 
 	mux.Group(func(subMux chi.Router) {
 		subMux.Use(r.sessionReader)
 
-		subMux.Get("/home", r.GetHome)
+		subMux.Get("/tables", r.GetTables)
 	})
 
 	return &r

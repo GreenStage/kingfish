@@ -1,59 +1,52 @@
 package handlers
 
 import (
+	"encoding/json"
 	"github.com/GreenStage/kingfish/internal/db"
-	"github.com/GreenStage/kingfish/internal/logger"
+	"github.com/GreenStage/kingfish/pkg/httputils"
+	"github.com/GreenStage/kingfish/pkg/logger"
 	"go.uber.org/zap"
 	"net/http"
 )
 
-var LoginConfig = struct {
-	DriverKey, HostNameKey, UsernameKey, PasswordKey, DatabaseKey string
-}{
-	DriverKey:   "driver",
-	HostNameKey: "hostname",
-	UsernameKey: "username",
-	PasswordKey: "password",
-	DatabaseKey: "db",
+type loginRequest struct {
+	Driver   string `json:"driver"`
+	Hostname string `json:"hostname"`
+	Dbname   string `json:"dbname"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
-func (r *router) GetLoginPage(w http.ResponseWriter, req *http.Request) {
-	err := r.render.HTML(w, http.StatusOK, "loginPage", map[string]interface{}{
-		"config":          LoginConfig,
-		sessionExpiredKey: req.URL.Query().Get(sessionExpiredKey),
-	})
-	if err != nil {
-		logger.FromContext(req.Context()).Error("error rendering home template", zap.Error(err))
-	}
+type loginResponse struct {
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int64  `json:"expires_in"`
 }
 
-func (r *router) PostLoginForm(w http.ResponseWriter, req *http.Request) {
+func (r *router) Login(w http.ResponseWriter, req *http.Request) {
 	log := logger.FromContext(req.Context())
 
-	if contentType := req.Header.Get("Content-Type"); contentType != "application/x-www-form-urlencoded" {
-		log.Error("invalid content type: " + contentType)
-		w.WriteHeader(http.StatusUnsupportedMediaType)
-	}
-
-	if err := req.ParseForm(); err != nil {
-		log.Error("could not parse form", zap.Error(err))
+	var loginRequest loginRequest
+	if err := json.NewDecoder(req.Body).Decode(&loginRequest); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	data := sessionData{
-		Driver: req.FormValue(LoginConfig.DriverKey),
+		Driver: loginRequest.Driver,
 		ConnConfig: db.ConnectionConfig{
-			Username: req.FormValue(LoginConfig.UsernameKey),
-			Password: req.FormValue(LoginConfig.PasswordKey),
-			Dbname:   req.FormValue(LoginConfig.DatabaseKey),
-			Host:     req.FormValue(LoginConfig.HostNameKey),
+			Username: loginRequest.Username,
+			Password: loginRequest.Password,
+			Dbname:   loginRequest.Dbname,
+			Host:     loginRequest.Hostname,
 		},
+
+		// TODO : this should be configurable by request
+		IdleLifeTime: r.config.SessionIdleLifetime,
 	}
 
 	driver, ok := r.config.Drivers[data.Driver]
 	if !ok {
-		log.Error("driver not found", zap.String("driver", LoginConfig.DriverKey))
+		log.Error("driver not supported", zap.String("driver", data.Driver))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -61,17 +54,20 @@ func (r *router) PostLoginForm(w http.ResponseWriter, req *http.Request) {
 	testSession, err := driver.NewConnection(data.ConnConfig)
 	if err != nil {
 		log.Error("could not connect to db", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest) // TODO: check what error code suits this scenario best
 		return
 	}
 	defer testSession.Close()
 
-	if err := r.writeSession(w, data); err != nil {
-		log.Error("could not write session config", zap.Error(err))
+	token, err := r.newSessionToken(data)
+	if err != nil {
+		log.Error("could not get session token", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Location", "home")
-	w.WriteHeader(http.StatusFound)
+	httputils.WriteJson(w, loginResponse{
+		AccessToken: token,
+		ExpiresIn:   int64(data.IdleLifeTime.Seconds()),
+	})
 }

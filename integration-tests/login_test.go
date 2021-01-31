@@ -1,118 +1,125 @@
 package integration_tests
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
+	"io"
 	"io/ioutil"
-	"net/url"
-	"strings"
+	"net/http"
 	"testing"
 )
 
-func TestGetLoginPage_ContainsRequiredFields(t *testing.T) {
-	r, err := getClient(t).Get(serverUrl + "/login")
-	assert.NoError(t, err)
-
-	defer r.Body.Close()
-	bodyBytes, _ := ioutil.ReadAll(r.Body)
-	assert.Contains(t, string(bodyBytes), "name=\"driver\"")
-	assert.Contains(t, string(bodyBytes), "name=\"hostname\"")
-	assert.Contains(t, string(bodyBytes), "name=\"username\"")
-	assert.Contains(t, string(bodyBytes), "name=\"password\"")
-	assert.Contains(t, string(bodyBytes), "name=\"db\"")
-}
-
-func TestPostLoginWithPostgresDriver(t *testing.T) {
+func TestPostLoginWithPostgresDriver_ErrorCases(t *testing.T) {
 	conf := testDBs["postgresql"]
 	tests := []struct {
-		name        string
-		contentType string
-		form        url.Values
-		wantCode    int
-		wantInBody  string
+		name     string
+		reqBody  interface{}
+		wantCode int
 	}{
 		{
-			name: "successful login returns home page",
-			form: url.Values{
-				"hostname": []string{conf.url},
-				"username": []string{conf.user},
-				"password": []string{conf.pass},
-				"db":       []string{conf.db},
-			},
-			contentType: "application/x-www-form-urlencoded",
-			wantCode:    200,
-			wantInBody:  "Hello " + conf.user,
-		},
-		{
 			name: "wrong hostname returns 400",
-			form: url.Values{
-				"hostname": []string{"invalid:5432"},
-				"username": []string{conf.user},
-				"password": []string{conf.pass},
-				"db":       []string{conf.db},
+			reqBody: map[string]interface{}{
+				"driver":   "postgresql",
+				"hostname": "invalid:5432",
+				"username": conf.user,
+				"password": conf.pass,
+				"dbname":   conf.db,
 			},
-			contentType: "application/x-www-form-urlencoded",
-			wantCode:    400,
+			wantCode: 400,
 		},
 		{
 			name: "wrong username returns 400",
-			form: url.Values{
-				"hostname": []string{conf.url},
-				"username": []string{"invalid"},
-				"password": []string{conf.pass},
-				"db":       []string{conf.db},
+			reqBody: map[string]interface{}{
+				"driver":   "postgresql",
+				"hostname": conf.url,
+				"username": "invalid",
+				"password": conf.pass,
+				"dbname":   conf.db,
 			},
-			contentType: "application/x-www-form-urlencoded",
-			wantCode:    400,
+			wantCode: 400,
 		},
 		{
 			name: "wrong password returns 400",
-			form: url.Values{
-				"hostname": []string{conf.url},
-				"username": []string{conf.user},
-				"password": []string{"invalid"},
-				"db":       []string{conf.db},
+			reqBody: map[string]interface{}{
+				"driver":   "postgresql",
+				"hostname": conf.url,
+				"username": conf.user,
+				"password": "password",
+				"dbname":   conf.db,
 			},
-			contentType: "application/x-www-form-urlencoded",
-			wantCode:    400,
+			wantCode: 400,
 		},
 		{
 			name: "wrong db name returns 400",
-			form: url.Values{
-				"hostname": []string{conf.url},
-				"username": []string{conf.user},
-				"password": []string{conf.pass},
-				"db":       []string{"invalid"},
+			reqBody: map[string]interface{}{
+				"driver":   "postgresql",
+				"hostname": conf.url,
+				"username": conf.user,
+				"password": conf.pass,
+				"dbname":   "invalid",
 			},
-			contentType: "application/x-www-form-urlencoded",
-			wantCode:    400,
-		},
-		{
-			name: "invalid content type returns 415",
-			form: url.Values{
-				"hostname": []string{conf.url},
-				"username": []string{conf.user},
-				"password": []string{conf.pass},
-				"db":       []string{conf.db},
-			},
-			contentType: "invalid",
-			wantCode:    415,
+			wantCode: 400,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.form["driver"] = []string{"postgresql"}
 
-			r, err := getClient(t).Post(serverUrl+"/login", test.contentType, strings.NewReader(test.form.Encode()))
+			body, err := json.Marshal(test.reqBody)
+			assert.Nil(t, err)
+
+			r, err := http.Post(serverUrl+"/login", "application/json", bytes.NewReader(body))
 			assert.NoError(t, err)
 
-			defer r.Body.Close()
-			bodyBytes, _ := ioutil.ReadAll(r.Body)
+			io.Copy(ioutil.Discard, r.Body)
+			r.Body.Close()
 
 			assert.Equal(t, test.wantCode, r.StatusCode)
-			if test.wantInBody != "" {
-				assert.Contains(t, string(bodyBytes), test.wantInBody)
-			}
 		})
 	}
+}
+
+func TestPostLoginWithPostgresDriver_SuccessReturnsValidTokenAndExpiryDate(t *testing.T) {
+	conf := testDBs["postgresql"]
+	token, expiresIn := doLogin(t, map[string]interface{}{
+		"driver":   "postgresql",
+		"hostname": conf.url,
+		"username": conf.user,
+		"password": conf.pass,
+		"dbname":   conf.db,
+	})
+
+	assert.NotEmpty(t, token)
+	assert.Greater(t, int(expiresIn), 0)
+
+	// Do a simple get tables to assert the returned token is valid
+	req, err := http.NewRequest("GET", serverUrl+"/tables", nil)
+	assert.NoError(t, err)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := http.DefaultClient.Do(req)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func doLogin(t *testing.T, input interface{}) (string, float64) {
+	body, err := json.Marshal(input)
+	assert.NoError(t, err)
+
+	r, err := http.Post(serverUrl+"/login", "application/json", bytes.NewReader(body))
+	assert.NoError(t, err)
+
+	data := make(map[string]interface{})
+	err = json.NewDecoder(r.Body).Decode(&data)
+
+	r.Body.Close()
+	assert.NoError(t, err)
+
+	token, _ := data["access_token"].(string)
+
+	expiresIn, _ := data["expires_in"].(float64)
+
+	return token, expiresIn
 }
