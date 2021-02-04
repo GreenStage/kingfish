@@ -41,9 +41,17 @@ jobs:
       run: |
         go build ./cmd/kingfish/main.go
 
-    - name: Go test
+    - name: Run unit tests
       run: |
-        go test -race -coverprofile coverage.txt -coverpkg ./... -covermode atomic ./...
+        go test -race -coverprofile coverage-unit.txt -covermode atomic ./...
+
+    - name: Run integration tests
+      run: |
+        go test -race -coverprofile coverage-integration.txt -coverpkg ./... -covermode atomic ./...
+
+    - name: Merge coverages
+      run: |
+        go get github.com/wadey/gocovmerge && gocovmerge coverage-unit.txt coverage-integration.txt
 
     - name: Upload coverage report
       uses: codecov/codecov-action@v1
