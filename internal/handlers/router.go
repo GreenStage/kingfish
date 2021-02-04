@@ -4,7 +4,6 @@ import (
 	"github.com/GreenStage/kingfish/internal/db"
 	"github.com/GreenStage/kingfish/pkg/httputils"
 	"github.com/go-chi/chi"
-	"github.com/thedevsaddam/renderer"
 	"net/http"
 	"time"
 )
@@ -21,7 +20,6 @@ type Config struct {
 
 type router struct {
 	config Config
-	render *renderer.Render
 	chiMux *chi.Mux
 }
 

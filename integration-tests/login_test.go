@@ -72,8 +72,9 @@ func TestPostLoginWithPostgresDriver_ErrorCases(t *testing.T) {
 			r, err := http.Post(serverUrl+"/login", "application/json", bytes.NewReader(body))
 			assert.NoError(t, err)
 
-			io.Copy(ioutil.Discard, r.Body)
-			r.Body.Close()
+			_, err = io.Copy(ioutil.Discard, r.Body)
+			assert.NoError(t, err)
+			assert.NoError(t, r.Body.Close())
 
 			assert.Equal(t, test.wantCode, r.StatusCode)
 		})
