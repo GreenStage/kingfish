@@ -47,16 +47,16 @@ jobs:
 
     - name: Run integration tests
       run: |
-        go test -race -coverprofile coverage-integration.txt -coverpkg ./... -covermode atomic ./...
+        go test -race -coverprofile coverage-integration.txt -coverpkg ./... -covermode atomic ./integration-tests
 
     - name: Merge coverages
       run: |
-        go get github.com/wadey/gocovmerge && gocovmerge coverage-unit.txt coverage-integration.txt
+        go get github.com/wadey/gocovmerge && gocovmerge coverage-unit.txt coverage-integration.txt > coverage.out.txt
 
     - name: Upload coverage report
       uses: codecov/codecov-action@v1
       with:
-        file: ./coverage.txt
-        flags: unittests
+        file: ./coverage.out.txt
+        flags: unittests, integrationtests
         name: codecov-umbrella
         token: ${{ secrets.CODECOV_TOKEN }}
