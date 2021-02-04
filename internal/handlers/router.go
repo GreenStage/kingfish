@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/GreenStage/kingfish/internal/db"
+	"github.com/GreenStage/kingfish/pkg/httputils"
 	"github.com/go-chi/chi"
 	"github.com/thedevsaddam/renderer"
 	"net/http"
@@ -30,7 +31,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func NewRouter(conf Config) *router {
 	mux := chi.NewMux()
-	mux.Use(recoveryHandler)
+	mux.Use(httputils.RecoveryHandler)
 
 	r := router{
 		config: conf,

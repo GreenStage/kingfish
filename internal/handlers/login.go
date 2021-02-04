@@ -66,7 +66,7 @@ func (r *router) Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httputils.WriteJson(w, loginResponse{
+	httputils.WriteJson(req.Context(), w, loginResponse{
 		AccessToken: token,
 		ExpiresIn:   int64(data.IdleLifeTime.Seconds()),
 	})

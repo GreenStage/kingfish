@@ -18,7 +18,6 @@ import (
 
 const (
 	clientKeyLen              = 32
-	sessionCtxKey             = "session"
 	reqAuthorizationHeaderKey = "Authorization"
 	respTokenHeaderKey        = "X-Access-Token"
 	respTokenExpInHeaderKey   = "X-Access-Token-Expires-In"

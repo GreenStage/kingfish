@@ -1,4 +1,4 @@
-package handlers
+package httputils
 
 import (
 	"github.com/GreenStage/kingfish/pkg/logger"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func recoveryHandler(next http.Handler) http.Handler {
+func RecoveryHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		defer func() {
 			if r := recover(); r != nil {

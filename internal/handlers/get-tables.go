@@ -36,5 +36,5 @@ func (r *router) GetTables(w http.ResponseWriter, req *http.Request) {
 		})
 	}
 
-	httputils.WriteJson(w, tableResp)
+	httputils.WriteJson(ctx, w, tableResp)
 }
