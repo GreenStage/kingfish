@@ -37,6 +37,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Build Kingfish
+      run: |
+        go build ./cmd/kingfish/main.go
+
     - name: Go test
       run: |
         go test -race -coverprofile coverage.txt -coverpkg ./... -covermode atomic ./...
