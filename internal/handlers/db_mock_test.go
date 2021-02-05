@@ -10,7 +10,7 @@ type MockDbConnection struct {
 	mock.Mock
 }
 
-func (m MockDbConnection) GetTables(ctx context.Context) ([]db.Table, error) {
+func (m *MockDbConnection) GetTables(ctx context.Context) ([]db.Table, error) {
 	args := m.MethodCalled("GetTables", ctx)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)
@@ -18,7 +18,7 @@ func (m MockDbConnection) GetTables(ctx context.Context) ([]db.Table, error) {
 	return args.Get(0).([]db.Table), nil
 }
 
-func (m MockDbConnection) Close() error {
+func (m *MockDbConnection) Close() error {
 	args := m.MethodCalled("Close")
 	return args.Error(0)
 }
