@@ -7,10 +7,22 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 )
 
-func TestPostLoginWithPostgresDriver_ErrorCases(t *testing.T) {
+func TestPostLoginWithPostgresDriver_InvalidJsonReturns400(t *testing.T) {
+	r, err := http.Post(serverUrl+"/login", "application/json", strings.NewReader("{{}"))
+	assert.NoError(t, err)
+
+	_, err = io.Copy(ioutil.Discard, r.Body)
+	assert.NoError(t, err)
+	assert.NoError(t, r.Body.Close())
+
+	assert.Equal(t, 400, r.StatusCode)
+}
+
+func TestPostLoginWithPostgresDriver_InvalidCredentials(t *testing.T) {
 	conf := testDBs["postgresql"]
 	tests := []struct {
 		name     string

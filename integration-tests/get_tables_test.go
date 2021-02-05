@@ -18,16 +18,45 @@ func TestGetTables_401WithoutSendingToken(t *testing.T) {
 	assert.Equal(t, 401, resp.StatusCode)
 }
 
-func TestGetTables_401InvalidToken(t *testing.T) {
-	// Do a simple get tables to assert the returned token is valid
-	req, err := http.NewRequest("GET", serverUrl+"/tables", nil)
-	assert.NoError(t, err)
+func TestGetTables_AuthErrors(t *testing.T) {
+	tests := []struct {
+		name             string
+		tokenHeaderValue string
+		wantCode         int
+	}{
+		{
+			name:             "empty header returns 401",
+			tokenHeaderValue: "",
+			wantCode:         401,
+		},
+		{
+			name:             "invalid authorization type returns 401",
+			tokenHeaderValue: "Basic xyz",
+			wantCode:         401,
+		},
+		{
+			name:             "empty token returns 401",
+			tokenHeaderValue: "Bearer",
+			wantCode:         401,
+		},
+		{
+			name:             "invalid token returns 401",
+			tokenHeaderValue: "Bearer ~~saçssasx",
+			wantCode:         401,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			req, err := http.NewRequest("GET", serverUrl+"/tables", nil)
+			assert.NoError(t, err)
 
-	req.Header.Set("Authorization", "Bearer  invalid")
-	resp, err := http.DefaultClient.Do(req)
-	assert.NoError(t, err)
+			req.Header.Set("Authorization", test.tokenHeaderValue)
+			resp, err := http.DefaultClient.Do(req)
+			assert.NoError(t, err)
 
-	assert.Equal(t, 401, resp.StatusCode)
+			assert.Equal(t, test.wantCode, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetTablesWithPostgresDriver_SuccessReturnsTablesInfo(t *testing.T) {

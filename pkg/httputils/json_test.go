@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/GreenStage/kingfish/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -13,7 +12,6 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
@@ -87,19 +85,9 @@ func TestWriteJson(t *testing.T) {
 				assert.Equal(t, tt.wantBody, string(bytes))
 			}
 
-			found := false
-
-			for _, log := range recorded.All() {
-				found = found || strings.Contains(log.Message, tt.wantLog)
-				for _, field := range log.Context {
-					found = found || strings.Contains(field.String, tt.wantLog)
-					found = found || strings.Contains(fmt.Sprintf("%v", field.Interface), tt.wantLog)
-				}
-			}
-
-			if found == (tt.wantLog == "") {
-				t.Fatalf("log found %v, want log %s", found, tt.wantLog)
-			}
+			logFound := logger.IsStringLogged(recorded, tt.wantLog)
+			assert.Equalf(t, tt.wantLog != "", logFound, "log found %v, want log %s", logFound, tt.wantLog)
 		})
+
 	}
 }

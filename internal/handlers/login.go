@@ -61,7 +61,7 @@ func (r *router) Login(w http.ResponseWriter, req *http.Request) {
 
 	token, err := r.newSessionToken(data)
 	if err != nil {
-		log.Error("could not get session token", zap.Error(err))
+		log.Error("could not create session token", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/GreenStage/kingfish/pkg/logger"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
@@ -29,13 +29,6 @@ func TestRecoveryHandler_HandlesPanicByLogging(t *testing.T) {
 
 	contextInjectHandler.ServeHTTP(httptest.NewRecorder(), &http.Request{})
 
-	found := false
-	searchFor := "panic"
-	for _, log := range recorded.All() {
-		found = found || strings.Contains(log.Message, searchFor)
-		for _, field := range log.Context {
-			found = found || strings.Contains(field.String, searchFor)
-			found = found || strings.Contains(fmt.Sprintf("%v", field.Interface), searchFor)
-		}
-	}
+	logFound := logger.IsStringLogged(recorded, "panic")
+	assert.True(t, logFound, "log with panic not found")
 }
