@@ -31,7 +31,7 @@ func Test_GenerateKeyErrorOnKeySmallerThanSize(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func Test_EncryptsReturnsErrorOnKeyLessThan31Bytes(t *testing.T) {
+func Test_EncryptsReturnsErrorOnKeyLessThan32Bytes(t *testing.T) {
 	keyBytes := []byte("GME goes brrrrrrrrrrrrrrrrrrrrrrrrrr")
 
 	key, err := GenerateKeyFromReader(31, bytes.NewReader(keyBytes))
