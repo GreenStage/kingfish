@@ -161,7 +161,7 @@ func (r *router) sessionReader(next http.Handler) http.Handler {
 		conn, err := driver.NewConnection(data.ConnConfig)
 		if err != nil {
 			log.Debug("could not establish db connection", zap.Error(err))
-			w.WriteHeader(http.StatusUnauthorized)
+			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 

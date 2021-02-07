@@ -11,7 +11,48 @@ import (
 	"testing"
 )
 
-func TestPostLoginWithPostgresDriver_InvalidJsonReturns400(t *testing.T) {
+func TestPostLogin_InvalidRequest(t *testing.T) {
+	tests := []struct {
+		name     string
+		reqBody  string
+		wantCode int
+	}{
+		{
+			name:     "invalid json returns 400",
+			reqBody:  "{{}",
+			wantCode: 400,
+		},
+		{
+			name: "unknown driver returns 400",
+			reqBody: func() string {
+				r, _ := json.Marshal(map[string]interface{}{
+					"driver":   "unknown",
+					"hostname": "invalid:5432",
+					"username": "user",
+					"password": "pass",
+					"dbname":   "db",
+				})
+				return string(r)
+			}(),
+			wantCode: 400,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			r, err := http.Post(server.URL+"/login", "application/json", strings.NewReader(test.reqBody))
+			assert.NoError(t, err)
+
+			_, err = io.Copy(ioutil.Discard, r.Body)
+			assert.NoError(t, err)
+			assert.NoError(t, r.Body.Close())
+
+			assert.Equal(t, test.wantCode, r.StatusCode)
+		})
+	}
+
+}
+
+func TestPostLogin_UnknownDriver(t *testing.T) {
 	r, err := http.Post(server.URL+"/login", "application/json", strings.NewReader("{{}"))
 	assert.NoError(t, err)
 

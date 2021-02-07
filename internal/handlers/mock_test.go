@@ -22,3 +22,15 @@ func (m *MockDbConnection) Close() error {
 	args := m.MethodCalled("Close")
 	return args.Error(0)
 }
+
+type MockDriver struct {
+	mock.Mock
+}
+
+func (m *MockDriver) NewConnection(config db.ConnectionConfig) (db.Connection, error) {
+	args := m.MethodCalled("NewConnection", config)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(db.Connection), args.Error(1)
+}
