@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	serverUrl string
+	server *httptest.Server
 )
 
 type dbLoader func(pool *dockertest.Pool, user, pw, db string) (url string, cleanupFn func(), err error)
@@ -74,13 +74,12 @@ func testMain(m *testing.M) int {
 		SessionIdleLifetime:  10 * time.Second,
 	})
 
-	server := httptest.NewUnstartedServer(handler)
+	server = httptest.NewUnstartedServer(handler)
 	server.Config.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
 		log, _ := zap.NewDevelopment()
 		return logger.ToContext(ctx, log)
 	}
 	server.Start()
-	serverUrl = server.URL
 
 	return m.Run()
 }

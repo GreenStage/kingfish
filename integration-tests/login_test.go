@@ -12,7 +12,7 @@ import (
 )
 
 func TestPostLoginWithPostgresDriver_InvalidJsonReturns400(t *testing.T) {
-	r, err := http.Post(serverUrl+"/login", "application/json", strings.NewReader("{{}"))
+	r, err := http.Post(server.URL+"/login", "application/json", strings.NewReader("{{}"))
 	assert.NoError(t, err)
 
 	_, err = io.Copy(ioutil.Discard, r.Body)
@@ -81,7 +81,7 @@ func TestPostLoginWithPostgresDriver_InvalidCredentials(t *testing.T) {
 			body, err := json.Marshal(test.reqBody)
 			assert.Nil(t, err)
 
-			r, err := http.Post(serverUrl+"/login", "application/json", bytes.NewReader(body))
+			r, err := http.Post(server.URL+"/login", "application/json", bytes.NewReader(body))
 			assert.NoError(t, err)
 
 			_, err = io.Copy(ioutil.Discard, r.Body)
@@ -107,7 +107,7 @@ func TestPostLoginWithPostgresDriver_SuccessReturnsValidTokenAndExpiryDate(t *te
 	assert.Greater(t, int(expiresIn), 0)
 
 	// Do a simple get tables to assert the returned token is valid
-	req, err := http.NewRequest("GET", serverUrl+"/tables", nil)
+	req, err := http.NewRequest("GET", server.URL+"/tables", nil)
 	assert.NoError(t, err)
 	req.Header.Set("Authorization", "Bearer "+token)
 
@@ -121,7 +121,7 @@ func doLogin(t *testing.T, input interface{}) (string, float64) {
 	body, err := json.Marshal(input)
 	assert.NoError(t, err)
 
-	r, err := http.Post(serverUrl+"/login", "application/json", bytes.NewReader(body))
+	r, err := http.Post(server.URL+"/login", "application/json", bytes.NewReader(body))
 	assert.NoError(t, err)
 
 	data := make(map[string]interface{})

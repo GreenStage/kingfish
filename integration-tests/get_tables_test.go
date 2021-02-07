@@ -9,7 +9,7 @@ import (
 
 func TestGetTables_401WithoutSendingToken(t *testing.T) {
 	// Do a simple get tables to assert the returned token is valid
-	req, err := http.NewRequest("GET", serverUrl+"/tables", nil)
+	req, err := http.NewRequest("GET", server.URL+"/tables", nil)
 	assert.NoError(t, err)
 
 	resp, err := http.DefaultClient.Do(req)
@@ -47,7 +47,7 @@ func TestGetTables_AuthErrors(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			req, err := http.NewRequest("GET", serverUrl+"/tables", nil)
+			req, err := http.NewRequest("GET", server.URL+"/tables", nil)
 			assert.NoError(t, err)
 
 			req.Header.Set("Authorization", test.tokenHeaderValue)
@@ -72,7 +72,7 @@ func TestGetTablesWithPostgresDriver_SuccessReturnsTablesInfo(t *testing.T) {
 	assert.NotEmpty(t, token)
 
 	// Do a simple get tables to assert the returned token is valid
-	req, err := http.NewRequest("GET", serverUrl+"/tables", nil)
+	req, err := http.NewRequest("GET", server.URL+"/tables", nil)
 	assert.NoError(t, err)
 	req.Header.Set("Authorization", "Bearer "+token)
 
