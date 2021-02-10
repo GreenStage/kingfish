@@ -1,7 +1,6 @@
 package integration_tests
 
 import (
-	"context"
 	"fmt"
 	"github.com/GreenStage/kingfish/internal/db/postgres"
 	"github.com/GreenStage/kingfish/internal/handlers"
@@ -10,7 +9,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest/v3"
 	"go.uber.org/zap"
-	"net"
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -66,6 +64,7 @@ func testMain(m *testing.M) int {
 		return 3
 	}
 
+	logger.Default, _ = zap.NewDevelopment()
 	handler := handlers.NewRouter(handlers.Config{
 		Drivers: map[string]handlers.Driver{
 			"postgresql": &postgres.Driver{},
@@ -75,10 +74,6 @@ func testMain(m *testing.M) int {
 	})
 
 	server = httptest.NewUnstartedServer(handler)
-	server.Config.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
-		log, _ := zap.NewDevelopment()
-		return logger.ToContext(ctx, log)
-	}
 	server.Start()
 
 	return m.Run()

@@ -12,5 +12,6 @@ type ConnectionConfig struct {
 
 type Connection interface {
 	GetTables(ctx context.Context) ([]Table, error)
+	Query(ctx context.Context, queryStr string) (QueryResult, error)
 	Close() error
 }

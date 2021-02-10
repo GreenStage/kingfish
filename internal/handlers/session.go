@@ -177,7 +177,7 @@ func (r *router) sessionReader(next http.Handler) http.Handler {
 
 		data.Conn = conn
 
-		req = req.WithContext(context.WithValue(ctx, sessionCtxKey, data))
+		req = req.WithContext(context.WithValue(ctx, sessionCtxKey{}, data))
 		next.ServeHTTP(w, req)
 	})
 }

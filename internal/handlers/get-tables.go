@@ -14,7 +14,7 @@ type getTableResponse struct {
 
 func (r *router) GetTables(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
-	sess, ok := ctx.Value(sessionCtxKey).(sessionData)
+	sess, ok := ctx.Value(sessionCtxKey{}).(sessionData)
 	if !ok {
 		logger.FromContext(ctx).Debug("no session found in context")
 		w.WriteHeader(http.StatusInternalServerError)

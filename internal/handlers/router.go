@@ -18,6 +18,8 @@ type Config struct {
 	SessionIdleLifetime  time.Duration
 }
 
+type sessionCtxKey struct{}
+
 type router struct {
 	config Config
 	chiMux *chi.Mux
@@ -42,6 +44,7 @@ func NewRouter(conf Config) *router {
 		subMux.Use(r.sessionReader)
 
 		subMux.Get("/tables", r.GetTables)
+		subMux.Post("/query", r.RunQuery)
 	})
 
 	return &r

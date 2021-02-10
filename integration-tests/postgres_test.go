@@ -35,10 +35,10 @@ var postgresTestMigrations = []string{
 		('user2','usermail2@github.com'),
 		('user3','usermail3@github.com')
 	`,
-	`INSERT INTO products (name,price) VALUES 
+	`INSERT INTO products (name, price) VALUES 
 		('apple', '10.0'),
 		('banana', '12.5'),
-		('orange', '15.0')
+		('orange', '3.14159265358979323846')
 	`,
 	`INSERT INTO orders (user_id, product_id, amount) VALUES 
 		('1','2','5'),

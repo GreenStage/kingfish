@@ -1,17 +1,11 @@
 package db
 
-/*
-type QueryResult struct {
-	Header []string
-	Rows   [][]interface{}
+type ColInfo struct {
+	Name string
+	Type string
 }
 
-func (q QueryResult) GetColumnIndex(colName string) int {
-	for i, h := range q.Header {
-		if h == colName {
-			return i
-		}
-	}
-	return -1
+type QueryResult struct {
+	Columns []ColInfo
+	Rows    [][]interface{}
 }
-*/

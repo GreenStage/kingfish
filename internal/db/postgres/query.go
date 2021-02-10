@@ -3,9 +3,14 @@ package postgres
 import (
 	"context"
 	"github.com/GreenStage/kingfish/internal/db"
+	"github.com/GreenStage/kingfish/internal/db/sql"
+	"github.com/GreenStage/kingfish/pkg/logger"
+	"go.uber.org/zap"
+
+	_ "github.com/lib/pq"
 )
 
-func (s *Connection) GetTables(ctx context.Context) ([]db.Table, error) {
+func (s *Connection) GetTables(_ context.Context) ([]db.Table, error) {
 	rows, err := s.db.Query(`
 SELECT tsc.tablename, cl.reltuples::bigint
 	FROM pg_catalog.pg_tables tsc
@@ -34,19 +39,17 @@ SELECT tsc.tablename, cl.reltuples::bigint
 	return out, nil
 }
 
-/* TODO
-func (s *Connection) Query(ctx context.Context, querystr string) (db.QueryResult, error) {
-	rows, err := s.db.Query(querystr)
+func (s *Connection) Query(ctx context.Context, queryStr string) (db.QueryResult, error) {
+	rows, err := s.db.Query(queryStr)
 	if err != nil {
 		return db.QueryResult{}, err
 	}
 
 	defer func() {
 		if err := rows.Close(); err != nil {
-			logger2.FromContext(ctx).Error("error closing postgres rows", zap.Error(err))
+			logger.FromContext(ctx).Error("error closing postgres rows", zap.Error(err))
 		}
 	}()
 
-	return sql.ParseRows(rows)
+	return sql.ParseRows(rows, TypeInstantiator)
 }
-*/

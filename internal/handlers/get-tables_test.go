@@ -31,7 +31,7 @@ func Test_GetTables_LogsAndHandlesDBErrorGracefully(t *testing.T) {
 	conn := &MockDbConnection{}
 	conn.On("GetTables", mock.Anything).Return(nil, errors.New("boom!"))
 
-	ctx = context.WithValue(ctx, sessionCtxKey, sessionData{
+	ctx = context.WithValue(ctx, sessionCtxKey{}, sessionData{
 		Conn: conn,
 	})
 	r := (&http.Request{}).WithContext(ctx)

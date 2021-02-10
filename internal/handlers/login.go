@@ -23,7 +23,8 @@ type loginResponse struct {
 }
 
 func (r *router) Login(w http.ResponseWriter, req *http.Request) {
-	log := logger.FromContext(req.Context())
+	ctx := req.Context()
+	log := logger.FromContext(ctx)
 
 	var loginRequest loginRequest
 	if err := json.NewDecoder(req.Body).Decode(&loginRequest); err != nil {
@@ -66,7 +67,7 @@ func (r *router) Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httputils.WriteJson(req.Context(), w, loginResponse{
+	httputils.WriteJson(ctx, w, loginResponse{
 		AccessToken: token,
 		ExpiresIn:   int64(data.IdleLifeTime.Seconds()),
 	})

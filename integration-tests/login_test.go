@@ -158,6 +158,16 @@ func TestPostLoginWithPostgresDriver_SuccessReturnsValidTokenAndExpiryDate(t *te
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
+func getDefaultPgDBConfig() map[string]interface{} {
+	return map[string]interface{}{
+		"driver":   "postgresql",
+		"hostname": testDBs["postgresql"].url,
+		"username": testDBs["postgresql"].user,
+		"password": testDBs["postgresql"].pass,
+		"dbname":   testDBs["postgresql"].db,
+	}
+}
+
 func doLogin(t *testing.T, input interface{}) (string, float64) {
 	body, err := json.Marshal(input)
 	assert.NoError(t, err)
