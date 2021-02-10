@@ -237,7 +237,7 @@ func Test_SessionReader_SuccessInjectsSessionIntoContext(t *testing.T) {
 	r.Header.Set("Authorization", "Bearer "+token)
 	assert.NotPanics(t, func() {
 		router.sessionReader(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			_, ok := r.Context().Value(sessionCtxKey).(sessionData)
+			_, ok := r.Context().Value(sessionCtxKey{}).(sessionData)
 			assert.True(t, ok)
 			w.WriteHeader(200)
 		})).ServeHTTP(w, r)
