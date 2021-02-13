@@ -1,0 +1,126 @@
+openapi: "3.0.0"
+info:
+  description: "Temporary KingFish REST API documentation"
+  version: "0.1.0"
+  title: "KingFish"
+  license:
+    name: "MIT"
+    url: "https://github.com/GreenStage/kingfish/blob/main/LICENSE"
+
+tags:
+  - name: "Auth"
+    description: "Everything related to authentication and authorization"
+  - name: "Meta"
+    description: "Access to a database metadata"
+  - name: "Data Fetch"
+    description: "Gets data from a database"
+
+paths:
+  /login:
+    post:
+      tags:
+        - "Auth"
+      summary: "Logins into a database"
+      description: " Attempts to connect and authenticate against a database, provided its host, name, user and pass (if required)"
+      operationId: "login"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                driver:
+                  type: string
+                dbname:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+              required: [driver,dbname,username,password]
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_int:
+                    type: number
+        "400":
+          description: "Invalid input"
+        "403":
+          description: "Error connecting to database"
+  /tables:
+    get:
+      tags:
+        - "Meta"
+      summary: "Gets a summary of all tables in the database"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    approx_row_count:
+                      type: number
+        "400":
+          description: "Invalid input"
+        "403":
+          description: "Error connecting to database"
+  /query:
+    post:
+      tags:
+        - "Data Fetch"
+      summary: "Runs a query"
+      description: "Runs a query that expects output rows as result."
+      requestBody:
+        description: sql query string to execute
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryResponse"
+        "400":
+          description: "Invalid input"
+        "403":
+          description: "Error connecting to database"
+
+
+components:
+  schemas:
+    ColInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+    QueryResponse:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/ColInfo"
+        rows:
+          type: array
+          items: {}
+        error:
+          type: string
+

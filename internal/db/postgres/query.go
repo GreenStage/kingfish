@@ -5,9 +5,8 @@ import (
 	"github.com/GreenStage/kingfish/internal/db"
 	"github.com/GreenStage/kingfish/internal/db/sql"
 	"github.com/GreenStage/kingfish/pkg/logger"
-	"go.uber.org/zap"
-
 	_ "github.com/lib/pq"
+	"go.uber.org/zap"
 )
 
 func (s *Connection) GetTables(_ context.Context) ([]db.Table, error) {

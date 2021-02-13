@@ -1,4 +1,4 @@
-package integration_tests
+package integrationtests
 
 import (
 	"fmt"
@@ -46,7 +46,7 @@ func testMain(m *testing.M) int {
 	}
 
 	for k, v := range testDBs {
-		generatedUrl, cleanup, err := v.loader(pool, v.user, v.pass, v.db)
+		generatedURL, cleanup, err := v.loader(pool, v.user, v.pass, v.db)
 		if cleanup != nil {
 			defer cleanup()
 		}
@@ -55,7 +55,7 @@ func testMain(m *testing.M) int {
 			fmt.Fprintf(os.Stderr, "could load %s db: %s\n", k, err)
 			return 2
 		}
-		v.url = generatedUrl
+		v.url = generatedURL
 	}
 
 	sessionEncryptionKey, err := aes.GenerateKey(32)

@@ -1,4 +1,4 @@
-package integration_tests
+package integrationtests
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -14,7 +14,7 @@ func TestGetTables_401WithoutSendingToken(t *testing.T) {
 
 	resp, err := http.DefaultClient.Do(req)
 	assert.NoError(t, err)
-
+	defer resp.Body.Close()
 	assert.Equal(t, 401, resp.StatusCode)
 }
 

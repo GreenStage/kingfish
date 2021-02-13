@@ -1,4 +1,4 @@
-package integration_tests
+package integrationtests
 
 import (
 	"bytes"
@@ -71,7 +71,7 @@ func TestPostLoginWithPostgresDriver_InvalidCredentials(t *testing.T) {
 		wantCode int
 	}{
 		{
-			name: "wrong hostname returns 400",
+			name: "wrong hostname returns 403",
 			reqBody: map[string]interface{}{
 				"driver":   "postgresql",
 				"hostname": "invalid:5432",
@@ -79,10 +79,10 @@ func TestPostLoginWithPostgresDriver_InvalidCredentials(t *testing.T) {
 				"password": conf.pass,
 				"dbname":   conf.db,
 			},
-			wantCode: 400,
+			wantCode: 403,
 		},
 		{
-			name: "wrong username returns 400",
+			name: "wrong username returns 403",
 			reqBody: map[string]interface{}{
 				"driver":   "postgresql",
 				"hostname": conf.url,
@@ -90,10 +90,10 @@ func TestPostLoginWithPostgresDriver_InvalidCredentials(t *testing.T) {
 				"password": conf.pass,
 				"dbname":   conf.db,
 			},
-			wantCode: 400,
+			wantCode: 403,
 		},
 		{
-			name: "wrong password returns 400",
+			name: "wrong password returns 403",
 			reqBody: map[string]interface{}{
 				"driver":   "postgresql",
 				"hostname": conf.url,
@@ -101,10 +101,10 @@ func TestPostLoginWithPostgresDriver_InvalidCredentials(t *testing.T) {
 				"password": "password",
 				"dbname":   conf.db,
 			},
-			wantCode: 400,
+			wantCode: 403,
 		},
 		{
-			name: "wrong db name returns 400",
+			name: "wrong db name returns 403",
 			reqBody: map[string]interface{}{
 				"driver":   "postgresql",
 				"hostname": conf.url,
@@ -112,7 +112,7 @@ func TestPostLoginWithPostgresDriver_InvalidCredentials(t *testing.T) {
 				"password": conf.pass,
 				"dbname":   "invalid",
 			},
-			wantCode: 400,
+			wantCode: 403,
 		},
 	}
 

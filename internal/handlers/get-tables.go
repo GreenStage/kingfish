@@ -9,7 +9,7 @@ import (
 
 type getTableResponse struct {
 	Name          string `json:"name"`
-	AproxRowCount int64  `json:"aprox_row_count"`
+	AproxRowCount int64  `json:"approx_row_count"`
 }
 
 func (r *router) GetTables(w http.ResponseWriter, req *http.Request) {

@@ -23,40 +23,40 @@ jobs:
           version: v1.29
 
   test:
-    needs: [lint]
+    needs: [ lint ]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-      
-    - name: Install Go
-      if: success()
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.15.x
+      - uses: actions/checkout@master
 
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Install Go
+        if: success()
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.x
 
-    - name: Build Kingfish
-      run: |
-        go build ./cmd/kingfish/main.go
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Run unit tests
-      run: |
-        go test -race -coverprofile coverage-unit.txt -covermode atomic ./...
+      - name: Build Kingfish
+        run: |
+          go build ./cmd/kingfish/main.go
 
-    - name: Run integration tests
-      run: |
-        go test -race -coverprofile coverage-integration.txt -coverpkg ./... -covermode atomic ./integration-tests
+      - name: Run unit tests
+        run: |
+          go test -race -coverprofile coverage-unit.txt -covermode atomic ./...
 
-    - name: Merge coverages
-      run: |
-        go get github.com/wadey/gocovmerge && gocovmerge coverage-unit.txt coverage-integration.txt > coverage.out.txt
+      - name: Run integration tests
+        run: |
+          go test -race -coverprofile coverage-integration.txt -coverpkg ./... -covermode atomic ./integration-tests
 
-    - name: Upload coverage report
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.out.txt
-        flags: unittests, integrationtests
-        name: codecov-umbrella
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Merge coverages
+        run: |
+          go get github.com/wadey/gocovmerge && gocovmerge coverage-unit.txt coverage-integration.txt > coverage.out.txt
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.out.txt
+          flags: unittests, integrationtests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}

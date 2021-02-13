@@ -48,14 +48,14 @@ func (r *router) Login(w http.ResponseWriter, req *http.Request) {
 	driver, ok := r.config.Drivers[data.Driver]
 	if !ok {
 		log.Error("driver not supported", zap.String("driver", data.Driver))
-		w.WriteHeader(http.StatusBadRequest)
+		httputils.WriteJson(ctx, w, "unknown driver \""+data.Driver+"\"", httputils.WithCode(http.StatusBadRequest))
 		return
 	}
 
 	testSession, err := driver.NewConnection(data.ConnConfig)
 	if err != nil {
 		log.Error("could not connect to db", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest) // TODO: check what error code suits this scenario best
+		httputils.WriteJson(ctx, w, "could not connect to database", httputils.WithCode(http.StatusForbidden))
 		return
 	}
 	defer testSession.Close()

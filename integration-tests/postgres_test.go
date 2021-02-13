@@ -1,4 +1,4 @@
-package integration_tests
+package integrationtests
 
 import (
 	"database/sql"
@@ -70,7 +70,7 @@ func loadPosgresTestDB(pool *dockertest.Pool, user, pw, dbname string) (url stri
 		}
 	}
 
-	postgresUrl := resource.GetHostPort("5432/tcp")
+	postgresURL := resource.GetHostPort("5432/tcp")
 
 	var db *sql.DB
 	if err := pool.Retry(func() error {
@@ -81,7 +81,7 @@ func loadPosgresTestDB(pool *dockertest.Pool, user, pw, dbname string) (url stri
 			"postgres://%s:%s@%s/%s?sslmode=disable",
 			user,
 			pw,
-			postgresUrl,
+			postgresURL,
 			dbname,
 		)
 
@@ -92,15 +92,15 @@ func loadPosgresTestDB(pool *dockertest.Pool, user, pw, dbname string) (url stri
 
 		return db.Ping()
 	}); err != nil {
-		return postgresUrl, cleanup, fmt.Errorf("could not connect to docker: %v", err)
+		return postgresURL, cleanup, fmt.Errorf("could not connect to docker: %v", err)
 	}
 	defer db.Close()
 
 	for i, migration := range postgresTestMigrations {
 		if _, err := db.Exec(migration); err != nil {
-			return postgresUrl, cleanup, fmt.Errorf("could not run migration %d: %v", i, err)
+			return postgresURL, cleanup, fmt.Errorf("could not run migration %d: %v", i, err)
 		}
 	}
 
-	return postgresUrl, cleanup, nil
+	return postgresURL, cleanup, nil
 }

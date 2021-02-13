@@ -1,1 +1,1 @@
-package integration_tests
+package integrationtests

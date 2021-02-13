@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	// sql driver
 	_ "github.com/lib/pq"
 )
 
@@ -13,6 +14,7 @@ const (
 	defaultPort = 5432
 )
 
+// Driver Postgres driver
 type Driver struct {
 }
 
@@ -24,7 +26,7 @@ func (d *Driver) NewConnection(config db.ConnectionConfig) (db.Connection, error
 	if len(hostAndPort) > 1 {
 		port, err = strconv.Atoi(hostAndPort[1])
 		if err != nil {
-			return nil, fmt.Errorf("could not parse port from hostname: %v", err)
+			return nil, fmt.Errorf("could not parse port from hostname: %w", err)
 		}
 	}
 
